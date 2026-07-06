@@ -34,7 +34,7 @@ def show_suggested_prompts() -> str | None:
     st.markdown("**Atau coba pertanyaan berikut:**")
 
     cols = st.columns(3)
-    suggestions = ["Jadwal dokter hari ini", "Jadwal dokter anak hari ini", "Jadwal dokter THT besok", "Jadwal dokter mata besok", "Jadwal dokter besok", "Jadwal Obstetri terdekat"]
+    suggestions = ["Jadwal dokter hari ini", "Jadwal dokter anak hari ini", "Jadwal dokter THT besok", "Jadwal dokter mata besok", "Jadwal dokter besok", "Jadwal klinik kandungan terdekat"]
     selected_prompt = None
 
     for i, suggestion in enumerate(suggestions):

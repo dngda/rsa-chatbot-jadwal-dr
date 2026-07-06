@@ -193,6 +193,7 @@ class Chatbot:
 
     def chat(self, message: str, model: str) -> str:
         self.last_turn_was_clarification = False
+        normalized_message = message.lower()
 
         if self.pending_request is None and not is_schedule_related_message(message):
             self.last_response = None
@@ -231,6 +232,10 @@ class Chatbot:
             return next_clarification_question(incoming_request)
 
         final_prompt = build_final_prompt(incoming_request)
+
+        if "terdekat" in normalized_message and "terdekat" not in final_prompt:
+            final_prompt = f"{final_prompt} terdekat".strip()
+
         response_text = self._send_message_to_model(final_prompt, model)
         self.last_completed_request = replace(incoming_request)
         self.pending_request = None

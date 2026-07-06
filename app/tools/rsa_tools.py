@@ -1,6 +1,6 @@
 from typing import Any
 from app.api.rsa_client import RSAClient
-from app.utils.query_normalizer import normalize_query
+from app.utils.query_normalizer import normalize_query_with_fallback
 
 rsa = RSAClient()
 
@@ -13,8 +13,20 @@ def search(query: str) -> dict[str, Any]:
         query: Doctor name, clinic name, or specialty keyword.
     """
 
-    query = normalize_query(query)
-    return rsa.search_doctors_or_clinic(query)
+    query_normalization = normalize_query_with_fallback(query)
+    primary_result = rsa.search_doctors_or_clinic(
+        query_normalization.normalized or query_normalization.original
+    )
+
+    if primary_result:
+        return primary_result
+
+    if query_normalization.fallback:
+        fallback_result = rsa.search_doctors_or_clinic(query_normalization.fallback)
+        if fallback_result:
+            return fallback_result
+
+    return primary_result
 
 
 def nearest_schedule(location_id: str) -> dict[str, Any]:
@@ -40,10 +52,23 @@ def schedule(date: str, query: str) -> dict[str, Any]:
         query: A doctor or clinic keyword.
     """
 
-    query = normalize_query(query)
-    return rsa.get_schedules_by_date_and_optional_query(
+    query_normalization = normalize_query_with_fallback(query)
+    primary_result = rsa.get_schedules_by_date_and_optional_query(
         date=date,
-        query=query
+        query=query_normalization.normalized or query_normalization.original,
     )
+
+    if primary_result:
+        return primary_result
+
+    if query_normalization.fallback:
+        fallback_result = rsa.get_schedules_by_date_and_optional_query(
+            date=date,
+            query=query_normalization.fallback,
+        )
+        if fallback_result:
+            return fallback_result
+
+    return primary_result
 
 RSA_TOOLS = [search, nearest_schedule, schedule]

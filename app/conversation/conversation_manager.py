@@ -264,9 +264,10 @@ def is_complete(pending: PendingRequest) -> bool:
     if pending.doctor:
         return pending.intent == "schedule"
 
-    has_subject = any((pending.clinic, pending.specialty))
+    if any((pending.clinic, pending.specialty)):
+        return pending.intent == "schedule"
 
-    return pending.intent == "schedule" and has_subject and bool(pending.date)
+    return pending.intent == "schedule" and bool(pending.date)
 
 
 def build_final_prompt(pending: PendingRequest) -> str:
